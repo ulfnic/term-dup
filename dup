@@ -1,0 +1,37 @@
+#!/bin/bash
+
+
+print_stderr() {
+	[[ $2 ]] && printf "$2" "${@:3}" 1>&2
+	[[ $1 == '0' ]] || exit $1
+}
+
+
+
+# Check dependencies
+type exec-in-term &> /dev/null || print_stderr 1 '%s\n' 'missing dependency: exec-in-term'
+
+
+
+# If the first parameter is a number, it defines how many terminals to execute the command in instead of 1.
+if [[ $1 =~ [0-9]+ ]]; then
+	term_count=$1
+	shift
+else
+	term_count=1
+fi
+
+
+
+# At this stage the command to execute should be the first param
+[[ $2 ]] && print_stderr 1 '%s\n' 'Execution string must be a single parameter'
+
+
+
+# Execute the first parameter in "$term_count" terminals
+for (( i = 0; i < term_count; i++ )); do
+	exec-in-term -p -x "$1"
+done
+
+
+
